@@ -50,17 +50,22 @@ install_dependencies() {
     case $DISTRO in
         ubuntu|debian)
             apt-get update
-            apt-get install -y python3 python3-pip python3-venv systemd
+            apt-get install -y python3 python3-pip python3-venv systemd curl wget
+            # Ensure pip is up to date
+            python3 -m pip install --upgrade pip
             ;;
         centos|rhel|fedora)
             if command -v dnf &> /dev/null; then
-                dnf install -y python3 python3-pip systemd
+                dnf install -y python3 python3-pip systemd curl wget
             else
-                yum install -y python3 python3-pip systemd
+                yum install -y python3 python3-pip systemd curl wget
             fi
+            # Ensure pip is up to date
+            python3 -m pip install --upgrade pip
             ;;
         *)
             echo -e "${RED}Unsupported distribution: $DISTRO${NC}"
+            echo "Supported distributions: Ubuntu, Debian, CentOS, RHEL, Fedora"
             exit 1
             ;;
     esac

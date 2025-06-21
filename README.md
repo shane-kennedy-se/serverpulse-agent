@@ -16,7 +16,7 @@ A comprehensive Linux monitoring agent that collects system metrics, monitors se
 
 1. **Download the agent:**
    ```bash
-   wget https://github.com/yourusername/serverpulse-agent/archive/main.zip
+   wget https://github.com/shane-kennedy-se/serverpulse-agent/archive/main.zip
    unzip main.zip
    cd serverpulse-agent-main
    ```
