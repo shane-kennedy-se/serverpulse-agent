@@ -1,275 +1,297 @@
-# ServerPulse Linux Agent
+# ServerPulse Agent
 
-A comprehensive Linux monitoring agent that collects system metrics, monitors services, detects crashes, and sends real-time data to your ServerPulse server management application.
+A robust Linux monitoring agent for Ubuntu VMs that automatically collects system metrics, monitors services, detects crashes, and reports to a Laravel-based ServerPulse backend.
 
 ## Features
 
-- **Real-time System Monitoring**: CPU, memory, disk, network, and uptime metrics
-- **Service Management**: Monitor systemd services for failures and status changes
-- **Crash Detection**: Automatically detect system crashes, kernel panics, and critical errors
-- **Log Monitoring**: Monitor custom log files for errors and events
-- **Alert System**: Intelligent alerting with configurable thresholds
-- **Secure Communication**: TLS-encrypted communication with ServerPulse
-- **Easy Installation**: Automated installation script for major Linux distributions
+- 🖥️ **System Monitoring**: CPU, memory, disk, network metrics
+- 🔧 **Service Monitoring**: Track status of critical services (Apache, Nginx, MySQL, etc.)
+- 💥 **Crash Detection**: Monitor for kernel panics, OOM kills, and system crashes  
+- 📋 **Log Monitoring**: Real-time monitoring of system logs for errors
+- 🔄 **Auto-Recovery**: Automatically restarts on failure
+- 🌐 **Online/Offline Status**: Reports server status including proper offline notification on shutdown
+- ⚡ **Easy Installation**: One-click installation script for Ubuntu
+- 🐍 **Python Environment Safe**: Handles Ubuntu's "externally managed Python" environment
 
 ## Quick Installation
 
-1. **Download the agent:**
-   ```bash
-   wget https://github.com/shane-kennedy-se/serverpulse-agent/archive/main.zip
-   unzip main.zip
-   cd serverpulse-agent-main
-   ```
-
-2. **Run the installation script:**
-   ```bash
-   sudo chmod +x install.sh
-   sudo ./install.sh
-   ```
-
-3. **Configure the agent:**
-   ```bash
-   sudo nano /etc/serverpulse-agent/config.yml
-   ```
-   
-   Update the following settings:
-   - `server.endpoint`: Your ServerPulse server URL
-   - `server.auth_token`: Authentication token from ServerPulse
-   - `server.agent_id`: Unique identifier for this agent
-
-4. **Start the agent:**
-   ```bash
-   sudo systemctl enable serverpulse-agent
-   sudo systemctl start serverpulse-agent
-   ```
-
-5. **Check status:**
-   ```bash
-   sudo systemctl status serverpulse-agent
-   ```
-
-## Manual Installation
-
-### Prerequisites
-
-- Python 3.6 or higher
-- pip3
-- systemd (for service management)
-
-### Installation Steps
-
-1. **Install Python dependencies:**
-   ```bash
-   pip3 install -r requirements.txt
-   ```
-
-2. **Create configuration directory:**
-   ```bash
-   sudo mkdir -p /etc/serverpulse-agent
-   sudo cp config.yml.example /etc/serverpulse-agent/config.yml
-   ```
-
-3. **Edit configuration:**
-   ```bash
-   sudo nano /etc/serverpulse-agent/config.yml
-   ```
-
-4. **Create systemd service:**
-   ```bash
-   sudo cp serverpulse-agent.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   ```
-
-5. **Start the agent:**
-   ```bash
-   sudo systemctl enable serverpulse-agent
-   sudo systemctl start serverpulse-agent
-   ```
-
-## Configuration
-
-The agent is configured through `/etc/serverpulse-agent/config.yml`. Here are the main configuration sections:
-
-### Server Configuration
-```yaml
-server:
-  endpoint: "https://your-serverpulse-domain.com"
-  auth_token: "your-auth-token-here"
-  agent_id: "unique-agent-id"
-```
-
-### Collection Settings
-```yaml
-collection:
-  interval: 30  # Data collection interval in seconds
-  metrics:
-    - system_stats
-    - disk_usage
-    - network_stats
-    - process_list
-```
-
-### Service Monitoring
-```yaml
-monitoring:
-  services:
-    - ssh
-    - nginx
-    - mysql
-    - docker
-```
-
-### Alert Thresholds
-```yaml
-alerts:
-  cpu_threshold: 80      # CPU usage percentage
-  memory_threshold: 85   # Memory usage percentage
-  disk_threshold: 90     # Disk usage percentage
-  load_threshold: 5.0    # System load average
-```
-
-## Collected Metrics
-
-### System Metrics
-- CPU usage (overall and per-core)
-- Memory usage (RAM and swap)
-- Disk usage and I/O statistics
-- Network interface statistics
-- System uptime and load average
-- Top processes by CPU and memory usage
-
-### Service Monitoring
-- Service status (active, failed, stopped)
-- Service start times
-- Service restart counts
-- Failed service detection
-
-### Crash Detection
-- Kernel panics and oops
-- Segmentation faults
-- Out of memory events
-- Hardware errors
-- Filesystem errors
-- Service crashes
-
-### Log Monitoring
-- Authentication failures
-- Web server errors
-- Database errors
-- Custom log patterns
-
-## API Endpoints
-
-The agent communicates with ServerPulse through these API endpoints:
-
-- `POST /api/v1/agents/register` - Agent registration
-- `POST /api/v1/agents/{id}/metrics` - Send metrics data
-- `POST /api/v1/agents/{id}/heartbeat` - Send heartbeat
-- `POST /api/v1/agents/{id}/alerts` - Send alerts
-- `GET /api/v1/agents/{id}/commands` - Get pending commands
-
-## Logging
-
-Logs are written to `/var/log/serverpulse-agent.log` and can also be viewed using:
+### Single Command Installation
 
 ```bash
-# View service logs
-sudo journalctl -u serverpulse-agent -f
-
-# View log file
-sudo tail -f /var/log/serverpulse-agent.log
+# Download and run the installer (works on any Linux distribution)
+curl -sSL https://raw.githubusercontent.com/your-repo/serverpulse-agent/main/install_serverpulse_agent.sh | sudo bash
 ```
 
-Log levels can be configured in the config file:
-- DEBUG: Detailed debugging information
-- INFO: General operational messages
-- WARNING: Warning messages
-- ERROR: Error messages
-- CRITICAL: Critical error messages
+**OR download the script first:**
+
+```bash
+# Download the installer
+wget https://raw.githubusercontent.com/your-repo/serverpulse-agent/main/install_serverpulse_agent.sh
+
+# Make it executable and run
+chmod +x install_serverpulse_agent.sh
+sudo ./install_serverpulse_agent.sh
+```
+
+### Configure the Agent
+
+```bash
+# Edit the configuration
+sudo nano /opt/serverpulse-agent/config.yml
+```
+
+**Required Changes:**
+```yaml
+# Change these to match your setup:
+api_endpoint: "http://192.168.1.50:8000/api"  # Your ServerPulse URL
+server_id: "my-ubuntu-server"                 # Unique name for this server
+api_key: "your-api-key-here"                  # If authentication required
+```
+
+### Start Monitoring
+
+```bash
+# Start the agent
+sudo systemctl start serverpulse-agent
+
+# Check if it's running
+sudo systemctl status serverpulse-agent
+
+# View live logs
+sudo journalctl -u serverpulse-agent -f
+```
+
+**That's it! Your server is now being monitored.** 🎉
+
+## Testing the Installation
+
+Run the built-in test script to verify everything is working:
+
+```bash
+# Test the agent (automatically created during installation)
+sudo python3 /opt/serverpulse-agent/test_agent.py
+```
+
+This will check:
+- ✅ Configuration is valid
+- ✅ Metrics collection works
+- ✅ API connection to ServerPulse
+
+## Configuration Reference
+
+The configuration file is located at `/opt/serverpulse-agent/config.yml`:
+
+```yaml
+# API Configuration
+api_endpoint: "http://localhost:8000/api"     # ServerPulse URL
+api_key: ""                                   # Authentication token (optional)
+server_id: "ubuntu-server-1"                 # Unique server identifier
+api_timeout: 30                               # API request timeout
+
+# Collection Settings  
+collection_interval: 30                      # Metrics collection interval (seconds)
+heartbeat_interval: 60                       # Heartbeat interval (seconds)
+log_level: "INFO"                            # Logging level
+
+# Services to Monitor
+services_to_monitor:
+  - apache2
+  - nginx  
+  - mysql
+  - postgresql
+  - redis-server
+  - docker
+  - ssh
+  - cron
+
+# Log Files to Monitor
+log_files:
+  - /var/log/syslog
+  - /var/log/auth.log
+  - /var/log/kern.log
+```
+
+## Useful Commands
+
+### Service Management
+```bash
+# Check status
+sudo systemctl status serverpulse-agent
+
+# Start/Stop/Restart
+sudo systemctl start serverpulse-agent
+sudo systemctl stop serverpulse-agent  
+sudo systemctl restart serverpulse-agent
+
+# Enable/Disable auto-start on boot
+sudo systemctl enable serverpulse-agent
+sudo systemctl disable serverpulse-agent
+```
+
+### Monitoring and Logs
+```bash
+# View real-time logs
+sudo journalctl -u serverpulse-agent -f
+
+# View recent logs
+sudo journalctl -u serverpulse-agent --since "1 hour ago"
+
+# Check agent log file
+sudo tail -f /opt/serverpulse-agent/logs/agent.log
+```
+
+### Testing and Debugging
+```bash
+# Test the installation
+sudo python3 /opt/serverpulse-agent/test_agent.py
+
+# Test metrics collection manually
+cd /opt/serverpulse-agent
+sudo ./venv/bin/python -c "
+from serverpulse_agent import ServerPulseAgent
+import json
+agent = ServerPulseAgent()
+metrics = agent.collect_system_metrics()
+print(json.dumps(metrics, indent=2))
+"
+
+# Test API connection
+curl -X POST http://your-serverpulse-url/api/servers/test/status \
+  -H "Content-Type: application/json" \
+  -d '{"status": "test", "timestamp": "2024-01-01T00:00:00", "server_id": "test"}'
+```
 
 ## Troubleshooting
 
-### Check Agent Status
+### Common Issues and Solutions
+
+**1. Installation Fails**
 ```bash
+# Make sure you're running as root
+sudo bash install_serverpulse_agent.sh
+
+# Check if your Linux distribution is supported
+cat /etc/os-release
+```
+
+**2. Service Won't Start**
+```bash
+# Check the service status
 sudo systemctl status serverpulse-agent
+
+# Check logs for errors
+sudo journalctl -u serverpulse-agent -l
+
+# Common fixes:
+sudo chmod +x /opt/serverpulse-agent/serverpulse_agent.py
+sudo chown -R root:root /opt/serverpulse-agent
 ```
 
-### View Recent Logs
+**3. Connection to ServerPulse Fails**
 ```bash
-sudo journalctl -u serverpulse-agent --since "1 hour ago"
+# Test network connectivity
+ping your-serverpulse-server-ip
+
+# Test if ServerPulse is running
+curl http://your-serverpulse-url/api/health
+
+# Check firewall (Ubuntu)
+sudo ufw status
+sudo ufw allow from your-serverpulse-ip
 ```
 
-### Test Configuration
+**4. Agent Stops Running**
 ```bash
-sudo -u serverpulse python3 /opt/serverpulse-agent/serverpulse_agent.py /etc/serverpulse-agent/config.yml
+# Check system resources
+free -h
+df -h
+
+# Restart the agent
+sudo systemctl restart serverpulse-agent
+
+# Check for errors
+sudo journalctl -u serverpulse-agent --since "10 minutes ago"
 ```
 
-### Common Issues
-
-1. **Connection Error**: Check network connectivity and server endpoint
-2. **Authentication Failed**: Verify auth_token in configuration
-3. **Permission Denied**: Ensure agent user has proper permissions
-4. **Service Won't Start**: Check configuration file syntax
-
-### Debug Mode
-To run the agent in debug mode:
+**5. Metrics Not Appearing in Dashboard**
 ```bash
-sudo systemctl stop serverpulse-agent
-sudo -u serverpulse python3 /opt/serverpulse-agent/serverpulse_agent.py /etc/serverpulse-agent/config.yml
+# Verify configuration
+sudo cat /opt/serverpulse-agent/config.yml
+
+# Test the agent manually
+sudo python3 /opt/serverpulse-agent/test_agent.py
+
+# Check ServerPulse logs on your Laravel server
 ```
 
-## Security
+### Getting Help
 
-- All communication is encrypted using TLS
-- Agent runs with minimal privileges
-- Configuration files have restricted permissions
-- Authentication tokens are stored securely
+If you're still having issues:
+
+1. **Check the logs**: `sudo journalctl -u serverpulse-agent -f`
+2. **Run the test script**: `sudo python3 /opt/serverpulse-agent/test_agent.py`
+3. **Verify your configuration**: `sudo nano /opt/serverpulse-agent/config.yml`
+4. **Check ServerPulse is accessible**: `ping your-serverpulse-server`
+
+## What Gets Installed
+
+The single installation script creates:
+
+- **Main Agent**: `/opt/serverpulse-agent/serverpulse_agent.py`
+- **Configuration**: `/opt/serverpulse-agent/config.yml`
+- **Virtual Environment**: `/opt/serverpulse-agent/venv/`
+- **Logs**: `/opt/serverpulse-agent/logs/agent.log`
+- **Test Script**: `/opt/serverpulse-agent/test_agent.py`
+- **Service**: `/etc/systemd/system/serverpulse-agent.service`
 
 ## Supported Linux Distributions
 
-- Ubuntu 18.04+
-- Debian 9+
-- CentOS/RHEL 7+
-- Fedora 30+
-- Amazon Linux 2
-- SUSE Linux Enterprise 12+
+The installer automatically detects and works with:
+- ✅ Ubuntu (all versions)
+- ✅ Debian (all versions)  
+- ✅ CentOS / RHEL / Rocky Linux / AlmaLinux
+- ✅ Fedora
+- ✅ openSUSE / SLES
+- ✅ Arch Linux / Manjaro
+- ✅ Most other Linux distributions
 
-## Requirements
+## Features in Detail
 
-- Python 3.6+
-- Root access for installation
-- Network connectivity to ServerPulse server
-- Systemd for service management
+### System Metrics
+- CPU usage and core count
+- Memory and swap usage
+- Disk usage for all partitions
+- Network I/O statistics
+- System load averages
+- Uptime information
 
-## Development
+### Service Monitoring
+- Monitors critical services like Apache, Nginx, MySQL
+- Reports service status (running, stopped, failed)
+- Tracks service restarts and failures
 
-To contribute to the agent development:
+### Crash Detection
+- Monitors for kernel panics
+- Detects Out of Memory (OOM) kills
+- Checks for crash dump files
+- Scans system logs for critical errors
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/serverpulse-agent.git
-   cd serverpulse-agent
-   ```
+### Automatic Startup/Shutdown
+- Starts automatically on boot
+- Sends "offline" status when shutting down
+- Auto-restarts if the agent crashes
+- Proper signal handling for clean shutdowns
 
-2. **Install development dependencies:**
-   ```bash
-   pip3 install -r requirements.txt
-   ```
+## Laravel Backend
 
-3. **Run tests:**
-   ```bash
-   python3 -m pytest tests/
-   ```
+For complete Laravel integration instructions, see [LARAVEL_INTEGRATION.md](LARAVEL_INTEGRATION.md).
 
-4. **Submit pull requests** with your improvements
+Quick Laravel setup:
+1. Add API routes for agent endpoints
+2. Create Server and Metric models  
+3. Handle incoming agent data
+4. Display metrics in dashboard
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, please contact:
-- Email: support@serverpulse.com
-- Documentation: https://docs.serverpulse.com
-- GitHub Issues: https://github.com/yourusername/serverpulse-agent/issues
+MIT License - see LICENSE file for details.
