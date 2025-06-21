@@ -237,12 +237,28 @@ If you're still having issues:
 
 The single installation script creates:
 
-- **Main Agent**: `/opt/serverpulse-agent/serverpulse_agent.py`
+- **Complete Agent**: `/opt/serverpulse-agent/serverpulse_agent.py` (includes all metrics collection)
 - **Configuration**: `/opt/serverpulse-agent/config.yml`
-- **Virtual Environment**: `/opt/serverpulse-agent/venv/`
+- **Virtual Environment**: `/opt/serverpulse-agent/venv/` (with all dependencies)
 - **Logs**: `/opt/serverpulse-agent/logs/agent.log`
 - **Test Script**: `/opt/serverpulse-agent/test_agent.py`
 - **Service**: `/etc/systemd/system/serverpulse-agent.service`
+
+## What It Monitors
+
+The agent includes built-in collectors for:
+
+### System Metrics
+- **CPU**: Usage percentage, core count
+- **Memory**: Total, used, available, percentage  
+- **Disk**: Usage per mount point, I/O statistics
+- **Network**: Bytes sent/received, packets sent/received
+- **System**: Uptime, load average, process count
+
+### Service Monitoring
+- **Common Services**: Apache, Nginx, MySQL, PostgreSQL, Redis, Docker, SSH
+- **Status Detection**: Active, inactive, failed states
+- **Automatic Checks**: Monitors service health every collection cycle
 
 ## Supported Linux Distributions
 
@@ -255,32 +271,34 @@ The installer automatically detects and works with:
 - ✅ Arch Linux / Manjaro
 - ✅ Most other Linux distributions
 
-## Features in Detail
+## API Communication
 
-### System Metrics
-- CPU usage and core count
-- Memory and swap usage
-- Disk usage for all partitions
-- Network I/O statistics
-- System load averages
-- Uptime information
+The agent sends data to these endpoints:
 
-### Service Monitoring
-- Monitors critical services like Apache, Nginx, MySQL
-- Reports service status (running, stopped, failed)
-- Tracks service restarts and failures
+- `POST /api/servers/{server_id}/metrics` - System and service metrics
+- `POST /api/servers/{server_id}/heartbeat` - Keep-alive signals  
+- `POST /api/servers/{server_id}/status` - Online/offline status
 
-### Crash Detection
-- Monitors for kernel panics
-- Detects Out of Memory (OOM) kills
-- Checks for crash dump files
-- Scans system logs for critical errors
-
-### Automatic Startup/Shutdown
-- Starts automatically on boot
-- Sends "offline" status when shutting down
-- Auto-restarts if the agent crashes
-- Proper signal handling for clean shutdowns
+Data format:
+```json
+{
+  "timestamp": "2025-06-21T20:30:00Z",
+  "server_id": "my-server",
+  "metrics": {
+    "cpu": {"usage_percent": 45.2, "count": 4},
+    "memory": {"total": 8589934592, "used": 5834752000, "percent": 67.8},
+    "disk": {"/": {"total": 100000000000, "used": 23400000000, "percent": 23.4}},
+    "network": {"bytes_sent": 1024000, "bytes_recv": 512000},
+    "uptime": 123456,
+    "load_average": {"1min": 1.5, "5min": 1.2, "15min": 0.8},
+    "process_count": 156
+  },
+  "services": {
+    "apache2": {"active": true, "status": "active"},
+    "mysql": {"active": false, "status": "failed"}
+  }
+}
+```
 
 ## Laravel Backend
 
